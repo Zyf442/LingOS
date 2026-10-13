@@ -1,35 +1,38 @@
 #!/bin/sh
-# postinst：创建 venv（离线可装，PRD 5.7）、编译 gschema、启用 user service
+# postinst：创建 venv（--system-site-packages 以复用系统 python3-gi）、安装守护进程与依赖
+# （PRD 5.7：vendored wheel 离线可装；在线则锁定版本直装）
 set -e
 
 VENV=/usr/lib/lingos/venv
+PYROOT=/usr/share/lingos/python
 
 case "$1" in
     configure)
-        # 1) venv + vendored wheels（离线安装场景）；有网则锁定版本直装
+        # 1) venv（含系统 site-packages：UI 的 PyGObject/GTK4 走系统包，PRD 11.2）
         if [ ! -d "$VENV" ]; then
-            python3 -m venv "$VENV"
+            python3 -m venv --system-site-packages "$VENV"
         fi
+
+        # 2) 依赖：优先 vendored wheels（离线），否则在线锁版本安装
         if [ -d /usr/share/lingos/wheels ]; then
             "$VENV/bin/pip" install --no-index --find-links /usr/share/lingos/wheels \
                 fastapi==0.115.6 uvicorn==0.32.1 openai==1.58.1 \
-                pydantic==2.10.4 pydantic-settings==2.7.0 httpx==0.28.1 websockets==13.1
+                pydantic==2.10.4 pydantic-settings==2.7.0 httpx==0.28.1 websockets==13.1 || true
         else
-            "$VENV/bin/pip" install --quiet \
+            "$VENV/bin/pip" install \
                 fastapi==0.115.6 uvicorn==0.32.1 openai==1.58.1 \
                 pydantic==2.10.4 pydantic-settings==2.7.0 httpx==0.28.1 websockets==13.1 \
                 || echo "lingos: 在线安装 Python 依赖失败，请检查网络后重试" >&2
         fi
-        # 守护进程入口指向 venv
-        "$VENV/bin/pip" install --no-deps --force-reinstall /usr/share/lingos/lingos-assistantd-py/ 2>/dev/null || true
+
+        # 3) 守护进程本体（含 lingos-assistantd 入口脚本）
+        "$VENV/bin/pip" install --no-deps --force-reinstall "$PYROOT"
         ln -sf "$VENV/bin/lingos-assistantd" /usr/bin/lingos-assistantd
 
-        # 2) gschema 编译
+        # 4) gschema / 图标缓存
         if command -v glib-compile-schemas >/dev/null 2>&1; then
             glib-compile-schemas /usr/share/glib-2.0/schemas/ || true
         fi
-
-        # 3) 图标缓存
         if command -v gtk-update-icon-cache >/dev/null 2>&1; then
             gtk-update-icon-cache -q /usr/share/icons/hicolor || true
         fi

@@ -30,7 +30,8 @@ dev = [
 lingos-assistantd = "lingos_assistantd.main:main"
 
 [tool.setuptools.packages.find]
-include = ["lingos_assistantd*"]
+# 打 deb 时 daemon 与 ui 同目录安装进 /usr/lib/lingos/venv（见 packaging/debian-assistant/debian/rules）
+include = ["lingos_assistantd*", "lingos_assistant_ui*"]
 
 [tool.setuptools.package-data]
 lingos_assistantd = ["storage/migrations/*.sql"]

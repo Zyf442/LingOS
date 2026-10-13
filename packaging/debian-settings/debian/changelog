@@ -1,0 +1,5 @@
+lingos-default-settings (1.0.0) noble; urgency=medium
+
+  * LingOS 品牌定制：壁纸/强调色/dconf 预设/OOBE 自启/Plymouth 主题清单
+
+ -- LingOS Maintainers <maintainers@lingos.dev>  Tue, 13 Oct 2026 11:00:00 +0800
