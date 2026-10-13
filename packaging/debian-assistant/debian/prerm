@@ -1,0 +1,11 @@
+#!/bin/sh
+# prerm：停止 user service
+set -e
+
+if [ "$1" = remove ] && [ -d /run/user/$(id -u) ]; then
+    systemctl --user stop lingos-assistantd 2>/dev/null || true
+fi
+
+#DEBHELPER#
+
+exit 0

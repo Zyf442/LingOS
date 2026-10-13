@@ -1,0 +1,4 @@
+# LingOS 组件（由 CI 先构建 deb 并放入 config/packages.chroot/）
+lingos-assistant
+gnome-shell-extension-lingos
+lingos-default-settings

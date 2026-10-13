@@ -1,0 +1,5 @@
+#!/bin/sh
+# lingos-assistant-ui 启动器：使用系统 python3 + 系统 PyGObject 运行 GTK4 UI
+set -e
+export PYTHONPATH="/usr/lib/python3/dist-packages/lingos-ui${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m lingos_assistant_ui.app "$@"

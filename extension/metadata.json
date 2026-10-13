@@ -1,0 +1,9 @@
+{
+  "uuid": "lingos@lingos.dev",
+  "name": "LingOS Assistant",
+  "description": "LingOS AI 助手集成：全局快捷键 Super+L、托盘状态图标、通知路由",
+  "version": 1,
+  "shell-version": ["46"],
+  "settings-schema": "org.gnome.shell.extensions.lingos",
+  "url": "https://github.com/lingos/lingos"
+}

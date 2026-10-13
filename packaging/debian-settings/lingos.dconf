@@ -1,0 +1,17 @@
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/lingos/default.jpg'
+picture-uri-dark='file:///usr/share/backgrounds/lingos/default.jpg'
+picture-options='zoom'
+
+[org/gnome/desktop/interface]
+accent-color='blue'
+color-scheme='default'
+
+[org/gnome/shell]
+favorite-apps=['firefox.desktop', 'org.gnome.Terminal.desktop', 'lingos-assistant.desktop', 'org.libreoffice.LibreOffice.desktop', 'org.gnome.Nautilus.desktop']
+
+[org/gnome/desktop/default-applications/terminal]
+exec='gnome-terminal'
+
+[org/gnome/desktop/search-providers]
+sort-order=['org.gnome.Settings.desktop', 'org.gnome.Nautilus.desktop']

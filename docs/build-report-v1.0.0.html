@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LingOS v1.0.0 交付总览</title>
+<style>
+  :root { --brand: #4C6EF5; --ink: #1f2430; --muted: #6b7280; --bg: #f7f8fc; --card: #fff; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--ink); padding: 40px 24px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 18px; margin-bottom: 28px; }
+  .logo { width: 64px; height: 64px; border-radius: 16px; background: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 34px; color: #fff; }
+  h1 { font-size: 26px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
+  .stat { background: var(--card); border-radius: 14px; padding: 18px; text-align: center; box-shadow: 0 1px 4px rgba(20,30,60,.06); }
+  .stat b { display: block; font-size: 30px; color: var(--brand); }
+  .stat span { font-size: 13px; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--card); border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(20,30,60,.06); margin-bottom: 14px; }
+  .card h2 { font-size: 16px; margin-bottom: 10px; color: var(--brand); }
+  .card ul { padding-left: 18px; font-size: 13.5px; line-height: 1.9; }
+  .ok { color: #059669; font-weight: 600; }
+  code { background: #eef0f8; border-radius: 5px; padding: 1px 6px; font-size: 12.5px; font-family: Consolas, monospace; }
+  .tag { display: inline-block; background: #e8ecff; color: var(--brand); border-radius: 999px; padding: 1px 10px; font-size: 12px; margin: 1px 2px; }
+  footer { margin-top: 8px; color: var(--muted); font-size: 12.5px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">⚡</div>
+    <div>
+      <h1>LingOS（灵犀 OS）v1.0.0 — 代码交付总览</h1>
+      <div class="sub">基于 Ubuntu 24.04 LTS + GNOME 46 的 AI 原生 Linux 定制发行版 · 按 PRD v1.0 实施 · 2026-10-13</div>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b class="ok">134</b><span>pytest 全部通过</span></div>
+    <div class="stat"><b>18</b><span>本地 REST/WS 接口</span></div>
+    <div class="stat"><b>47</b><span>攻击样本全部 DENY</span></div>
+    <div class="stat"><b class="ok">0</b><span>ruff / 泄露 告警</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>🖥 守护进程 lingos-assistantd（daemon/）</h2>
+      <ul>
+        <li>FastAPI 本地 API（仅 127.0.0.1:47831，token 鉴权，令牌桶限流，1MB 上限）</li>
+        <li>SQLite WAL + 内置迁移器 + 损坏自动隔离重建（.corrupt 备份）</li>
+        <li>LLM 客户端：openai SDK 流式、指数退避重试、熔断器（5 次失败 OPEN 60s，半开单探测）</li>
+        <li>上下文裁剪：token 估算、超窗摘要压缩、失败截断兜底</li>
+        <li>工具系统：shell / file_read / file_write / file_delete / system_info / gsettings_set</li>
+        <li>ChatService：工具调用循环、逐条确认流、allow_batch 目录前缀、参数自纠 ≤2 轮、取消 kill 进程组、重启后 pending 一律 failed</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>🛡 安全执行器（executor/）</h2>
+      <ul>
+        <li>guard：正则 + shlex 双重黑名单（提权/毁灭命令/管道注入/保护目录写），命中即拒绝、不可确认</li>
+        <li>敏感路径黑名单（~/.ssh、~/.gnupg、~/.config、/etc、/boot、*.token、*.pem、id_rsa*）</li>
+        <li>gsettings 白名单 14 键；风险三级标签（低/中/高）</li>
+        <li>systemd-run 资源隔离（MemoryMax=1G / CPUQuota=100%），超时 kill 整组</li>
+        <li>FreeDesktop 回收站（永不真删）+ 写前自动备份（保留 50 份）</li>
+        <li>审计日志全留痕（删会话不删审计）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>🪟 桌面 UI + GNOME 扩展</h2>
+      <ul>
+        <li>GTK4 + libadwaita：主窗口（历史侧栏/聊天/设置/审计）、快捷面板（Super+L，600×720）</li>
+        <li>确认对话框：命令原文/diff 预览 + 风险标签 + 批量允许（同工具同目录）</li>
+        <li>OOBE 三步引导、空状态快捷卡片、无 Key 横幅、草稿 5s 暂存</li>
+        <li>GNOME 46 ESM 扩展：全局快捷键、托盘四态（就绪/降级/无 Key/无服务）、工具能力开关</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>📦 打包 / ISO / 仓库 / CI</h2>
+      <ul>
+        <li>3 个 deb：lingos-assistant（venv 离线可装）、gnome-shell-extension-lingos、lingos-default-settings（壁纸/dconf/OOBE/ Plymouth）</li>
+        <li>live-build ISO：去 snap、Firefox/LibreOffice deb 版、中文 locale、GRUB"LingOS"品牌</li>
+        <li>apt 仓库：apt-ftparchive + GPG 签名，GitHub Pages 托管</li>
+        <li>ci.yml：lint → test → gitleaks → pip-audit → 打 deb → 容器安装冒烟</li>
+        <li>release.yml：tag 触发 → 签名 → 仓库索引 → ISO → QEMU UEFI 冒烟 → Release</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✅ 已验证 / ⏳ 待 Ubuntu 环境验证</h2>
+    <ul>
+      <li><span class="ok">已验证</span>：单元测试 108（guard 攻击样本 47 条全 DENY、熔断状态机、上下文裁剪、迁移/级联/损坏自愈、回收站）；API 集成 17（鉴权/幂等/423/分页/Key 管理/WS）；mock 流式 e2e 9（纯文本流、确认-允许/拒绝/批量、黑名单拒绝、自纠、取消、错误降级）；守护进程真实启动 + /healthz + 401 冒烟</li>
+      <li><span class="tag">待 Ubuntu 24.04</span> dpkg-buildpackage 实际出包 · GTK UI / GNOME 扩展实机渲染 · live-build ISO 构建 · QEMU 安装冒烟（devcontainer 已就绪：<code>scripts/setup-dev.sh</code>）</li>
+    </ul>
+  </div>
+
+  <footer>仓库：E:/LingOS · 开发规则：TRAE.md · 需求真相源：docs/PRD.md · 启动：LINGOS_NO_SYSTEMD=1 daemon/.venv/bin/lingos-assistantd</footer>
+</div>
+</body>
+</html>

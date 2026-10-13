@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=LingOS 助手
+Name[en]=LingOS Assistant
+Comment=AI 原生的系统助手
+Comment[en]=AI-native system assistant
+Exec=python3 -m lingos_assistant_ui.app
+Icon=com.lingos.assistant
+Terminal=false
+Categories=GNOME;GTK;Utility;System;
+Keywords=ai;assistant;lingos;llm;
+StartupNotify=true
+X-GNOME-UsesNotifications=true

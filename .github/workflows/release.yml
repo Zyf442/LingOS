@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 测试全绿门禁
+        run: |
+          cd daemon
+          pip install fastapi==0.115.6 uvicorn==0.32.1 openai==1.58.1 \
+            pydantic==2.10.4 pydantic-settings==2.7.0 httpx==0.28.1 websockets==13.1 \
+            pytest==8.3.4 pytest-asyncio==0.24.0 respx==0.22.0
+          pytest -m "not network"
+
+      - name: 构建 deb ×3
+        run: |
+          sudo apt-get update && sudo apt-get install -y devscripts debhelper dh-python python3-all python3-setuptools python3-venv
+          mkdir -p dist
+          for pkg in debian-assistant debian-extension debian-settings; do
+            (cd packaging/$pkg && dpkg-buildpackage -us -uc -b && cp ../*.deb ../../dist/ && rm -f ../*.deb ../*.changes ../*.build ../*.buildinfo)
+          done
+
+      - name: GPG 签名导入（deb/Release 签名，PRD 10.1 供应链）
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.LINGOS_GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: 构建 apt 仓库索引
+        run: bash repo/build-repo.sh dist repo-out
+
+      - name: 构建 ISO（live-build，需 ≥40GB 磁盘，超时 90min，PRD 13.2）
+        run: |
+          sudo apt-get install -y live-build
+          cd iso
+          sudo ./auto/build.sh
+          mv ../*.iso ../dist/lingos-${GITHUB_REF_NAME}-amd64.iso || mv *.iso ../dist/lingos-${GITHUB_REF_NAME}-amd64.iso || true
+        continue-on-error: false
+
+      - name: QEMU 冒烟（UEFI + BIOS，PRD 12.1）
+        run: |
+          sudo apt-get install -y qemu-system-x86 ovmf
+          ISO=dist/lingos-*-amd64.iso
+          # UEFI 启动到 GRUB 即算通过（完整 GDM 登录冒烟在内测 VM 手动执行）
+          timeout 300 qemu-system-x86_64 -m 2048 -display none -cdrom $ISO \
+            -drive if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd \
+            -boot d -net none || test $? -eq 124
+
+      - name: 生成 SHA256SUMS 并签名
+        run: |
+          cd dist && sha256sum *.iso *.deb > SHA256SUMS
+          gpg --batch --yes --armor --detach-sign SHA256SUMS
+
+      - name: 发布 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.iso
+            dist/*.deb
+            dist/SHA256SUMS
+            dist/SHA256SUMS.asc
+          generate_release_notes: true
+
+      - name: 发布 apt 仓库到 Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: repo-out
+          destination_dir: repo

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.lingos.assistant" path="/com/lingos/assistant/">
+    <!-- 特性开关（PRD 19） -->
+    <key name="enable-tools" type="b">
+      <default>true</default>
+      <summary>全局工具总开关</summary>
+      <description>关闭后 AI 仅能对话，不能执行 shell/文件/设置操作</description>
+    </key>
+    <key name="enable-oobe" type="b">
+      <default>true</default>
+      <summary>首次登录引导</summary>
+    </key>
+    <key name="enable-prewarmed-panel" type="b">
+      <default>true</default>
+      <summary>UI 面板预热（会话启动 30s 后预拉起隐藏面板）</summary>
+    </key>
+  </schema>
+</schemalist>

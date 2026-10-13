@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=LingOS
+Description=LingOS boot splash（品牌靛蓝 #4C6EF5）
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/lingos
+ScriptFile=/usr/share/plymouth/themes/lingos/lingos.script

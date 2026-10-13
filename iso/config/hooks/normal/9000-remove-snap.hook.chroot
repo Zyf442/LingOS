@@ -1,0 +1,12 @@
+#!/bin/sh
+# chroot hook：安装阶段生效
+# 1) 移除 snap 相关（PRD 5.7：Ubuntu Desktop 基础 - snap）
+set -e
+
+if [ -d /var/lib/snapd ]; then
+    rm -rf /var/lib/snapd /var/cache/snapd /snap
+    apt-get purge -y snapd || true
+fi
+
+# 2) 确保 PID 1 为 systemd（GDM 图形目标）
+systemctl set-default graphical.target || true

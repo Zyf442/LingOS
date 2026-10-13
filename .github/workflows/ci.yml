@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.8.4 black==24.10.0
+      - run: cd daemon && ruff check . && black --check .
+
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 安装依赖
+        run: |
+          cd daemon
+          python -m pip install --upgrade pip
+          pip install fastapi==0.115.6 uvicorn==0.32.1 openai==1.58.1 \
+            pydantic==2.10.4 pydantic-settings==2.7.0 httpx==0.28.1 websockets==13.1 \
+            pytest==8.3.4 pytest-asyncio==0.24.0 respx==0.22.0
+      - name: 单测 + API + mock e2e（LLM 永远 mock，PRD 11.4）
+        run: cd daemon && pytest -m "not network"
+
+  security:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks（Key/token 泄露扫描，PRD 10.1/13.2）
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: pip-audit
+        run: |
+          pip install pip-audit==2.7.3
+          cd daemon && pip-audit -r <(echo "fastapi==0.115.6
+          uvicorn==0.32.1
+          openai==1.58.1
+          pydantic==2.10.4
+          pydantic-settings==2.7.0
+          httpx==0.28.1
+          websockets==13.1")
+
+  build-debs:
+    runs-on: ubuntu-24.04
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: 构建 3 个 deb（PRD 5.7）
+        run: |
+          sudo apt-get update && sudo apt-get install -y devscripts debhelper dh-python python3-all python3-setuptools python3-venv
+          mkdir -p dist
+          for pkg in debian-assistant debian-extension debian-settings; do
+            cd packaging/$pkg
+            dpkg-buildpackage -us -uc -b
+            cp ../*.deb ../../dist/
+            rm -f ../*.deb ../*.changes ../*.build ../*.buildinfo
+            cd ../..
+          done
+          ls -la dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debs
+          path: dist/*.deb
+
+  install-smoke:
+    runs-on: ubuntu-24.04
+    needs: build-debs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: debs
+          path: dist/
+      - name: 干净容器安装冒烟（debci 风格，PRD 12.1）
+        run: |
+          docker run --rm -v "$PWD/dist:/dist:ro" ubuntu:24.04 bash -c '
+            set -e
+            apt-get update
+            apt-get install -y --no-install-recommends python3 python3-venv ca-certificates curl /dist/lingos-default-settings_*.deb
+            dpkg -i /dist/gnome-shell-extension-lingos_*.deb || apt-get install -f -y
+            echo "deb 包安装冒烟通过（完整依赖联调在 Staging VM 中执行）"
+          '

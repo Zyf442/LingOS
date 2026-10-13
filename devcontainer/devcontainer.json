@@ -1,0 +1,22 @@
+{
+  "name": "LingOS Development (Ubuntu 24.04)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-vscode.livepreview"
+      ]
+    }
+  },
+  "containerEnv": {
+    "LINGOS_ENV": "dev",
+    "LINGOS_NO_SYSTEMD": "1",
+    "LINGOS_DEV_KEYRING": "file"
+  },
+  "postCreateCommand": "bash /workspaces/lingos/scripts/setup-dev.sh",
+  "remoteUser": "root"
+}

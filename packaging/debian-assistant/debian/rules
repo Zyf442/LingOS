@@ -1,0 +1,40 @@
+#!/usr/bin/make -f
+# dh_python3 + setuptools 打包 daemon；UI 以 pure-python 模块一并安装
+
+export PYBUILD_NAME = lingos-assistantd
+export DEB_BUILD_OPTIONS = nocheck
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_build:
+	# 从 monorepo 拷贝源码（dpkg-buildpackage 在本目录运行）
+	mkdir -p build-src
+	cp -r ../../daemon/lingos_assistantd build-src/
+	cp -r ../../ui/lingos_assistant_ui build-src/
+	cp ../../daemon/pyproject.toml build-src/
+	dh_auto_build -O--buildsystem=pybuild --sourcedirectory=build-src
+
+override_dh_auto_install:
+	dh_auto_install -O--buildsystem=pybuild --sourcedirectory=build-src
+
+override_dh_install:
+	dh_install
+	# systemd user unit
+	install -Dm0644 ../systemd/lingos-assistantd.service \
+		debian/lingos-assistant/usr/lib/systemd/user/lingos-assistantd.service
+	# 桌面入口 + 图标 + gschema + 样式
+	install -Dm0644 ../../ui/lingos_assistant_ui/data/com.lingos.assistant.desktop.in \
+		debian/lingos-assistant/usr/share/applications/com.lingos.assistant.desktop
+	install -Dm0644 ../../ui/lingos_assistant_ui/data/icons/com.lingos.assistant.svg \
+		debian/lingos-assistant/usr/share/icons/hicolor/scalable/apps/com.lingos.assistant.svg
+	install -Dm0644 ../../ui/lingos_assistant_ui/data/com.lingos.assistant.gschema.xml \
+		debian/lingos-assistant/usr/share/glib-2.0/schemas/com.lingos.assistant.gschema.xml
+	install -Dm0644 ../../ui/lingos_assistant_ui/data/style.css \
+		debian/lingos-assistant/usr/share/lingos/style.css
+	# UI 启动器（供扩展/应用网格调用）
+	install -Dm0755 debian/lingos-assistant-ui.wrapper \
+		debian/lingos-assistant/usr/bin/lingos-assistant-ui
+
+override_dh_installsystemduser:
+	dh_installsystemduser --no-enable --no-start

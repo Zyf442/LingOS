@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- LingOS 助手图标：靛蓝圆角方块 + 灵犀闪电 -->
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#4C6EF5"/>
+  <path d="M72 28 L44 70 H62 L56 100 L88 54 H68 Z" fill="#ffffff"/>
+</svg>

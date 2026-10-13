@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_install:
+	# dconf 系统级基线
+	install -Dm0644 lingos.dconf \
+		debian/lingos-default-settings/etc/dconf/db/lingos.d/00-branding
+	install -Dm0644 profile-user \
+		debian/lingos-default-settings/etc/dconf/profile/user
+	# 壁纸
+	install -Dm0644 wallpaper.jpg \
+		debian/lingos-default-settings/usr/share/backgrounds/lingos/default.jpg
+	# OOBE 自启（首次登录，PRD 5.1 M12）
+	install -Dm0644 lingos-oobe.desktop \
+		debian/lingos-default-settings/etc/xdg/autostart/lingos-oobe.desktop
+	# Plymouth 主题清单（主题文件随版本补充）
+	mkdir -p debian/lingos-default-settings/usr/share/plymouth/themes/lingos
+	install -Dm0644 plymouth/lingos.plymouth \
+		debian/lingos-default-settings/usr/share/plymouth/themes/lingos/lingos.plymouth

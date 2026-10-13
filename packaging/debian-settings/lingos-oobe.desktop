@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=LingOS 首次配置
+Exec=lingos-assistant-ui --oobe
+Icon=com.lingos.assistant
+Terminal=false
+X-GNOME-Autostart-enabled=true
+# 仅首次登录运行：由 UI 检测 dconf com.lingos.assistant enable-oobe 完成后置 false
+Categories=Utility;

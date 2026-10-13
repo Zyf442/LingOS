@@ -1,0 +1,17 @@
+Source: lingos-assistant
+Section: gnome
+Priority: optional
+Maintainer: LingOS Maintainers <maintainers@lingos.dev>
+Build-Depends: debhelper-compat (= 13), dh-python, python3 (>= 3.12), python3-setuptools, python3-venv, python3-pip
+Standards-Version: 4.6.2
+Homepage: https://github.com/lingos/lingos
+
+Package: lingos-assistant
+Architecture: amd64
+Depends: python3 (>= 3.12), python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1, python3-secretstorage, python3-websocket, gnome-keyring, policykit-1, systemd, xdg-utils, curl, ${misc:Depends}
+Recommends: gnome-shell-extension-lingos, lingos-default-settings
+Description: LingOS AI 助手（守护进程 + GTK4 桌面应用）
+ 系统级 AI 助手：常驻 systemd user service（lingos-assistantd，仅监听
+ 127.0.0.1），GTK4/libadwaita 桌面 UI，通过 OpenAI 兼容 API 调用云端大模型，
+ 可对话并安全执行系统任务（shell/文件/gsettings，危险操作需用户确认）。
+ 卸载后系统回到干净的 Ubuntu 体验，不残留钩子。

@@ -1,0 +1,14 @@
+# ISO 基础包（live-build auto/config 之外的补充，PRD 5.7）
+# Ubuntu Desktop 基础 + 本项目 3 个 deb + 默认应用；无 snap
+
+live-build
+casper
+discover
+laptop-detect
+os-prober
+net-tools
+ubuntu-desktop-minimal^
+firefox
+libreoffice
+gnome-terminal
+gdm3

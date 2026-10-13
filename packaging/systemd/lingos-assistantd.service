@@ -1,0 +1,19 @@
+[Unit]
+Description=LingOS AI Assistant Daemon
+# PRD 2.4 启动顺序：keyring 解锁后启动
+After=gnome-keyring-daemon.service
+PartOf=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/lib/lingos/venv/bin/lingos-assistantd
+# PRD 14.1：RTO ≤ 5s
+Restart=on-failure
+RestartSec=2
+StartLimitBurst=5
+StartLimitIntervalSec=60
+# 绝不以 root 运行（systemd user service 天然普通用户权限，PRD 1.4）
+Slice=app.slice
+
+[Install]
+WantedBy=default.target

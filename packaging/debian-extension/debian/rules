@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_install:
+	install -Dm0644 ../../extension/metadata.json \
+		debian/gnome-shell-extension-lingos/usr/share/gnome-shell/extensions/lingos@lingos.dev/metadata.json
+	install -Dm0644 ../../extension/extension.js \
+		debian/gnome-shell-extension-lingos/usr/share/gnome-shell/extensions/lingos@lingos.dev/extension.js
+	install -Dm0644 ../../extension/shortcut.js \
+		debian/gnome-shell-extension-lingos/usr/share/gnome-shell/extensions/lingos@lingos.dev/shortcut.js
+	install -Dm0644 ../../extension/tray.js \
+		debian/gnome-shell-extension-lingos/usr/share/gnome-shell/extensions/lingos@lingos.dev/tray.js
+	install -Dm0644 ../../extension/org.gnome.shell.extensions.lingos.gschema.xml \
+		debian/gnome-shell-extension-lingos/usr/share/glib-2.0/schemas/org.gnome.shell.extensions.lingos.gschema.xml

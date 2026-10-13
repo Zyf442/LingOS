@@ -1,0 +1,29 @@
+#!/bin/sh
+# postinst：编译 gschema、注册自定义快捷键（Super+L，PRD 5.6）
+set -e
+
+if command -v glib-compile-schemas >/dev/null 2>&1; then
+    glib-compile-schemas /usr/share/glib-2.0/schemas/ || true
+fi
+
+# 为所有用户预注册自定义快捷键（dconf 上用户级生效，此处写 /etc/dconf 基线）
+mkdir -p /etc/dconf/profile
+cat > /etc/dconf/profile/user <<'EOF'
+user-db:user
+system-db:lingos
+EOF
+mkdir -p /etc/dconf/db/lingos.d
+cat > /etc/dconf/db/lingos.d/00-lingos-shortcut <<'EOF'
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding=['<Super>l']
+command='lingos-assistant-ui --quick'
+name='LingOS 助手'
+EOF
+dconf update || true
+
+#DEBHELPER#
+
+exit 0

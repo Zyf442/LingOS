@@ -1,0 +1,14 @@
+Source: lingos-default-settings
+Section: gnome
+Priority: optional
+Maintainer: LingOS Maintainers <maintainers@lingos.dev>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/lingos/lingos
+
+Package: lingos-default-settings
+Architecture: all
+Depends: ${misc:Depends}
+Description: LingOS 品牌默认设置（壁纸/主题/dconf 预设/OOBE 自启）
+ LingOS 品牌定制包：默认壁纸与强调色（#4C6EF5）、dconf 系统级预设
+ （Firefox/LibreOffice/GNOME Terminal 为默认应用）、OOBE 首次登录自启。

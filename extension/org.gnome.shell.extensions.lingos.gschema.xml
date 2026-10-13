@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.lingos" path="/org/gnome/shell/extensions/lingos/">
+    <key name="toggle-shortcut" type="as">
+      <default>['&lt;Super&gt;l']</default>
+      <summary>唤起助手面板的快捷键</summary>
+    </key>
+  </schema>
+</schemalist>

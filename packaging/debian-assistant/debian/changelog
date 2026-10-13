@@ -1,0 +1,8 @@
+lingos-assistant (1.0.0) noble; urgency=medium
+
+  * 首个正式版本：守护进程（FastAPI/SQLite/LLM 客户端/工具执行器）
+  * GTK4/libadwaita 桌面应用（主窗口/快捷面板/确认框/设置/审计/OOBE）
+  * 5 个安全工具：shell/file_read/file_write/file_delete/system_info + gsettings_set
+  * 黑名单/敏感路径/确认流/审计日志全链路
+
+ -- LingOS Maintainers <maintainers@lingos.dev>  Tue, 13 Oct 2026 11:00:00 +0800

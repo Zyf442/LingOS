@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lingos-assistantd"
+version = "1.0.0"
+description = "LingOS AI assistant daemon (lingos-assistantd)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.32.1",
+    "openai==1.58.1",
+    "pydantic==2.10.4",
+    "pydantic-settings==2.7.0",
+    "httpx==0.28.1",
+    "websockets==13.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "respx==0.22.0",
+    "ruff==0.8.4",
+    "black==24.10.0",
+]
+
+[project.scripts]
+lingos-assistantd = "lingos_assistantd.main:main"
+
+[tool.setuptools.packages.find]
+include = ["lingos_assistantd*"]
+
+[tool.setuptools.package-data]
+lingos_assistantd = ["storage/migrations/*.sql"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["."]
+markers = [
+    "network: 真实 LLM API 测试（默认不跑）",
+]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]

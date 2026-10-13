@@ -1,0 +1,13 @@
+#!/bin/sh
+# postrm：彻底清理（可拆卸性，PRD 1.4：卸载后不残留钩子）
+set -e
+
+if [ "$1" = purge ]; then
+    rm -rf /usr/lib/lingos/venv
+    rm -f /usr/bin/lingos-assistantd
+    # 用户数据不自动删除（对话历史/审计在 ~/.local/share/lingos，由用户自行处理）
+fi
+
+#DEBHELPER#
+
+exit 0

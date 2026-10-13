@@ -1,0 +1,5 @@
+lingos-assistant (1.0.0) noble; urgency=medium
+
+  * GNOME 46 Shell 扩展：Super+L 快捷键、托盘状态、菜单入口
+
+ -- LingOS Maintainers <maintainers@lingos.dev>  Tue, 13 Oct 2026 11:00:00 +0800

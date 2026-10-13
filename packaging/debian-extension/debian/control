@@ -1,0 +1,15 @@
+Source: gnome-shell-extension-lingos
+Section: gnome
+Priority: optional
+Maintainer: LingOS Maintainers <maintainers@lingos.dev>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/lingos/lingos
+
+Package: gnome-shell-extension-lingos
+Architecture: all
+Depends: gnome-shell (>= 46~), gnome-shell (<< 47~), curl, ${misc:Depends}
+Description: LingOS 助手的 GNOME Shell 扩展
+ 全局快捷键（Super+L）唤起助手面板、托盘状态图标（就绪/降级/无 Key）、
+ 菜单快速入口（打开助手/设置/暂停工具能力/审计日志）。
+ 仅支持 GNOME 46（ESM）。
