@@ -162,11 +162,11 @@ def test_settings_flow(client, auth_headers):
 def test_api_key_write_test_delete(client, auth_headers, harness):
     r = client.post(
         "/api/v1/settings/api-key",
-        json={"provider": "dashscope", "api_key": "sk-newkey-12345678"},
+        json={"provider": "dashscope", "api_key": "newkey-not-real-000"},
         headers=auth_headers,
     )
     assert r.status_code == 204
-    assert harness.keyring.get_api_key() == "sk-newkey-12345678"
+    assert harness.keyring.get_api_key() == "newkey-not-real-000"
 
     r = client.post("/api/v1/settings/api-key/test", headers=auth_headers)
     assert r.status_code == 200 and r.json()["ok"] is True  # FakeLLM

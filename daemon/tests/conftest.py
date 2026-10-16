@@ -139,7 +139,7 @@ class Harness:
 @pytest.fixture
 def harness(db, tmp_path, monkeypatch):
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
-    keyring = EnvKeyring("sk-testkey-1234567890")
+    keyring = EnvKeyring("testkey-not-a-real-secret-000")
     bus = EventBus()
     fake_llm = FakeLLM()
     fake_executor = FakeExecutor()

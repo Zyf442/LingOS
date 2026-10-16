@@ -18,7 +18,7 @@ docker run --rm \
     sed -i "s|http://archive.ubuntu.com|https://mirrors.aliyun.com|g" /etc/apt/sources.list.d/ubuntu.sources
     apt-get update
     apt-get install -y --no-install-recommends \
-      devscripts debhelper python3 ca-certificates \
+      build-essential devscripts debhelper python3 ca-certificates \
       libglib2.0-bin curl
     mkdir -p /lingos/dist
     for pkg in debian-assistant debian-extension debian-settings; do
