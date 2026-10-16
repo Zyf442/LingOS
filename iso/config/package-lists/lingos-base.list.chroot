@@ -12,3 +12,9 @@ firefox
 libreoffice
 gnome-terminal
 gdm3
+
+# 虚拟化客户机集成（VMware/VirtualBox/QEMU 都能用：分辨率自适应、剪贴板、拖放）
+open-vm-tools
+open-vm-tools-desktop
+spice-vdagent
+qemu-guest-agent

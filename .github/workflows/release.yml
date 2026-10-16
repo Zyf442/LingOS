@@ -3,17 +3,26 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch: {}  # 允许手动触发（不想发 tag 时也能构建 ISO 试跑）
 
 jobs:
   release:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 180
     permissions:
       contents: write
       pages: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: 清理 runner 磁盘（ISO 构建需 ≥40GB，PRD 13.2）
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost \
+            "$AGENT_TOOLSDIRECTORY" /usr/local/share/powershell /opt/hostedtoolcache \
+            /usr/lib/mono /usr/share/swift /usr/share/gradle* || true
+          sudo docker image prune -a --force || true
+          df -h /
 
       - uses: actions/setup-python@v5
         with:
@@ -46,10 +55,14 @@ jobs:
 
       - name: 构建 ISO（live-build，需 ≥40GB 磁盘，超时 90min，PRD 13.2）
         run: |
-          sudo apt-get install -y live-build
+          sudo apt-get install -y live-build xorriso mtools squashfs-tools \
+            isolinux syslinux-utils grub-pc-bin grub-efi-amd64-bin dosfstools
           cd iso
           sudo ./auto/build.sh
-          mv ../*.iso ../dist/lingos-${GITHUB_REF_NAME}-amd64.iso || mv *.iso ../dist/lingos-${GITHUB_REF_NAME}-amd64.iso || true
+          # live-build 产物位于 iso/ 当前目录（live-image-amd64.hybrid.iso）
+          sudo chown -R $USER:$USER ../dist iso/*.iso 2>/dev/null || true
+          ISO=$(ls *.iso | head -1)
+          cp -v "$ISO" ../dist/lingos-${GITHUB_REF_NAME:-v1.0.0}-amd64.iso
         continue-on-error: false
 
       - name: QEMU 冒烟（UEFI + BIOS，PRD 12.1）
@@ -66,7 +79,15 @@ jobs:
           cd dist && sha256sum *.iso *.deb > SHA256SUMS
           gpg --batch --yes --armor --detach-sign SHA256SUMS
 
+      - name: 上传 ISO 到 Actions 工件（先试跑，发布由下一步完成）
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingos-iso
+          path: dist/lingos-*-amd64.iso
+          retention-days: 30
+
       - name: 发布 GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: |
@@ -77,6 +98,7 @@ jobs:
           generate_release_notes: true
 
       - name: 发布 apt 仓库到 Pages
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
